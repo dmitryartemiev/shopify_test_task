@@ -1,0 +1,118 @@
+<div class="page-width">
+
+  {% if section.settings.header != blank %}
+    <div class="section-header text-center">
+      <h2>{{ section.settings.header | escape }}</h2>
+    </div>
+  {% endif %}
+
+  {%- assign collection = collections[section.settings.collection] -%}
+  {%- assign firstProduct = section.settings.firstProduct -%}
+  {%- assign secondProduct = section.settings.secondProduct -%}
+  {%- assign thirdProduct = section.settings.thirdProduct -%}
+  {%- assign fourthProduct = section.settings.fourthProduct -%}
+
+  {%- assign product_limit = 4 -%}
+
+  <ul class="custom-unordered-list">
+
+
+    {%- for product in collection.products -%}
+
+  {% comment %} {%- assign checker = false -%} {% endcomment %}
+
+    {%- for variant in product.variants -%}
+    {%- if variant.selected -%}
+      {%- assign checker = true -%}
+    {%- endif -%}
+    {%- endfor -%}
+
+  {%- unless checker -%}
+  {%- assign product.variants[0].selected = true -%}
+  variant selected: {{ product.variants[0].selected }}
+  {%- endunless -%}
+
+    {%- for variant in product.variants -%}
+    {%- if variant.selected -%}
+    {{ selected }}
+      {%- assign currentVar = variant -%}
+      {{ currentVar.title }}
+    {%- endif -%}
+    {%- endfor -%}
+
+      <li class="custom-list-item-for-product">
+
+       
+        {% for variant in product.variants %}
+        {%- assign productImage = variant.images[0].src %}
+        {% endfor %}
+      <img src="{{ productImage | product_img_url: 'medium' }}" alt="">
+
+
+      <div class="custom-product-title">{{product.title}}</div>
+
+      <div class="custom-select-type-of-prod">
+        <select name="type-of-prod" id="custom-selected-type">
+            {% for variant in product.variants %}
+            <option value="{{ variant.id }}">{{variant.title}}</option>
+            {% endfor %}
+        </select>
+      </div>
+
+      </li>
+
+
+    {%endfor%}
+
+
+  </ul>
+
+
+
+{% schema %}
+  {
+    "name" : "Cart Recommendations",
+
+    "presets" : [
+      {
+        "category" : "Cart-recomendations",
+        "name" : "Recomendations"
+      }
+    ],
+
+
+    "settings": [
+    {
+      "id": "header",
+      "type": "text",
+      "label": "Header"
+    },
+      {
+        "id": "collection",
+        "type": "collection",
+        "label": "Collection"
+      },
+      {
+        "id": "first-product",
+        "type": "product",
+        "label": "Custom product"
+      },
+      {
+        "id": "second-product",
+        "type": "product",
+        "label": "Custom product"
+      },
+      {
+        "id": "third-product",
+        "type": "product",
+        "label": "Custom product"
+      },
+      {
+        "id": "fourth-product",
+        "type": "product",
+        "label": "Custom product"
+      }
+    ]
+  }
+  
+{% endschema %}

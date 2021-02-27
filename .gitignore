@@ -1,4 +1,3 @@
 *.DS_Store
 node_modules
-
-$ theme get --password=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 --store=dev-test-task-daretmiev.myshopify.com --themeid=120206459029
+config.yml
