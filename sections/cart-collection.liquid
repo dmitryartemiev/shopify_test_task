@@ -1,4 +1,4 @@
-<div class="page-width">
+<div class="page-width" id="ProductSection-{{ section.id }}">
 
   {% if section.settings.header != blank %}
     <div class="section-header text-center">
@@ -6,68 +6,156 @@
     </div>
   {% endif %}
 
-  {%- assign collection = collections[section.settings.collection] -%}
-  {%- assign firstProduct = section.settings.firstProduct -%}
-  {%- assign secondProduct = section.settings.secondProduct -%}
-  {%- assign thirdProduct = section.settings.thirdProduct -%}
-  {%- assign fourthProduct = section.settings.fourthProduct -%}
 
-  {%- assign product_limit = 4 -%}
+{%- assign additional = section.blocks -%}
+  {%- assign collection = collections[section.settings.collection]  -%}
+
+  {%- assign compare_at_price = current_variant.compare_at_price -%}
+  {%- assign price = current_variant.price -%}
+   
+  
 
   <ul class="custom-unordered-list">
-
-
-    {%- for product in collection.products -%}
-
-  {% comment %} {%- assign checker = false -%} {% endcomment %}
-
-    {%- for variant in product.variants -%}
-    {%- if variant.selected -%}
-      {%- assign checker = true -%}
-    {%- endif -%}
-    {%- endfor -%}
-
-  {%- unless checker -%}
-  {%- assign product.variants[0].selected = true -%}
-  variant selected: {{ product.variants[0].selected }}
-  {%- endunless -%}
-
-    {%- for variant in product.variants -%}
-    {%- if variant.selected -%}
-    {{ selected }}
-      {%- assign currentVar = variant -%}
-      {{ currentVar.title }}
-    {%- endif -%}
-    {%- endfor -%}
-
-      <li class="custom-list-item-for-product">
-
-       
-        {% for variant in product.variants %}
-        {%- assign productImage = variant.images[0].src %}
-        {% endfor %}
-      <img src="{{ productImage | product_img_url: 'medium' }}" alt="">
-
-
-      <div class="custom-product-title">{{product.title}}</div>
-
-      <div class="custom-select-type-of-prod">
-        <select name="type-of-prod" id="custom-selected-type">
-            {% for variant in product.variants %}
-            <option value="{{ variant.id }}">{{variant.title}}</option>
-            {% endfor %}
-        </select>
-      </div>
-
-      </li>
-
-
-    {%endfor%}
-
-
+{% for block in section.blocks %}
+      {% assign product_item = all_products[block.settings.product] %}
+      <li>{{product_item.title}}</li>
+    {% endfor %}
   </ul>
 
 
+  <ul class="custom-unordered-list">
+
+  {% unless product.in__cart %}
+    
+  {% endunless %}
+    
+    {% if collection.products %}
+    
+    {%- for product in collection.products -%}
+
+   
+
+          {% form 'product', product, class:form_classes, novalidate: 'novalidate', data-product-form: '' %}
+          
+             {%- assign current_variant = product.selected_or_first_available_variant -%}
+    {%- assign product_image = product.images[0].src-%}
+      {% if current_variant.images %}
+        {%- assign product_image = current_variant.images[0].src %}
+      {% endif %}
+
+      
+      <li class="custom-list-item-for-product">
+        
+{% comment %} Start Picture {% endcomment %}
+        <a href="{{product.url}}"><img src="{{ product_image | product_img_url: 'medium' }}" alt=""></a>
+        {% comment %} End Picture {% endcomment %}
+        {% comment %} Start Title {% endcomment %}
+        <a href="{{product.url}}"><div class="custom-product-title">{{product.title}}</div></a>
+{% comment %} End Title {% endcomment %}
+
+{% comment %} START FORM {% endcomment %}
+              {%- assign price = current_variant.price -%}
+
+
+  {% comment %} Start Selector {% endcomment %}        
+       <div class="custom-select-type-of-prod">
+  {% if product.available %}
+  
+          <select name="id" class="custom-selected-type" id="ProductSelect-{{ section.id }}" class="product-form__variants no-js">
+            {% for variant in product.variants %}
+            {% if variant.available %}
+        
+              <option {% if variant == current_variant %} selected="selected" {% endif %} value="{{ variant.id }}" id="{{ variant.id }}">
+        
+                {{ variant.title }}
+        
+              </option>
+        
+            {% else %}
+              <option disabled="disabled"> {{ variant.title }} - {{ 'products.product.sold_out' | t }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        {% endif %}
+    </div>       
+       {% comment %} End Selector {% endcomment %}
+
+            <div class="product-form__error-message-wrapper product-form__error-message-wrapper--hidden{% if section.settings.enable_payment_button %} product-form__error-message-wrapper--has-payment-button{% endif %}"
+              data-error-message-wrapper
+              role="alert"
+            >
+              <span class="visually-hidden">{{ 'general.accessibility.error' | t }} </span>
+              {% include 'icon-error' %}
+              <span class="product-form__error-message" data-error-message>{{ 'products.product.quantity_minimum_message' | t }}</span>
+            </div>
+
+            {% comment %} Start Button {% endcomment %}
+            <div class="product-form__controls-group product-form__controls-group--submit">
+              <div class="product-form__item product-form__item--submit
+          
+                {%- if product.has_only_default_variant %} product-form__item--no-variants {%- endif -%}"
+              >
+                <button type="submit" name="add"
+                  {% unless current_variant.available %} aria-disabled="true"{% endunless %}
+                  aria-label="{% unless current_variant.available %}{{ 'products.product.sold_out' | t }}{% else %}{{ 'products.product.add_to_cart' | t }}{% endunless %}"
+                  class="btn product-form__cart-submit{% if section.settings.enable_payment_button and product.selling_plan_groups == empty %} btn--secondary-accent{% endif %}"
+                  data-add-to-cart>
+                  <span data-add-to-cart-text>
+                    {% unless current_variant.available %}
+                      {{ 'products.product.sold_out' | t }}
+                    {% else %}
+                      {{ 'products.product.add_to_cart' | t }}
+                      {% comment %} Start Price {% endcomment %}
+
+                      <div id="price-{{product.id}}" class="product__price">
+                      {% include 'product-price' | variant: current_variant %}
+                      </div>
+
+                      {% comment %} End Price {% endcomment %}
+                    {% endunless %}
+                  </span>
+                  <span class="hide" data-loader>
+                    {% include 'icon-spinner' %}
+                  </span>
+                </button>
+           
+              </div>
+            </div>
+          {% endform %}
+      
+
+{% comment %} End Button {% endcomment %}
+{% comment %} END FORM {% endcomment %}
+      
+    </li>
+    {%endfor%} 
+     {% endif %}
+  </ul>
+
+<script>
+    let $selector = document.getElementsByClassName('custom-selected-type')
+    for (let selector of $selector){
+      selector.addEventListener('change', (evt) => {
+  
+let price = evt.target.parentElement.parentElement.getElementsByTagName("button")[0].children[0].children[0];
+console.log(price);
+       for (let option of selector){
+         if (option.selected){
+          
+           let optionId = option.id;
+           console.log(optionId);
+
+          let optionPrice = option.price;
+          console.log(optionPrice);
+          
+
+         }
+        
+       }
+      })
+    }
+
+</script>
 
 {% schema %}
   {
@@ -80,39 +168,36 @@
       }
     ],
 
-
     "settings": [
     {
       "id": "header",
       "type": "text",
       "label": "Header"
     },
-      {
-        "id": "collection",
-        "type": "collection",
-        "label": "Collection"
-      },
-      {
-        "id": "first-product",
-        "type": "product",
-        "label": "Custom product"
-      },
-      {
-        "id": "second-product",
-        "type": "product",
-        "label": "Custom product"
-      },
-      {
-        "id": "third-product",
-        "type": "product",
-        "label": "Custom product"
-      },
-      {
-        "id": "fourth-product",
-        "type": "product",
-        "label": "Custom product"
-      }
-    ]
+    {
+      "id": "collection",
+      "type": "collection",
+      "label": "Collection"
+    }
+    ],
+
+  
+      "blocks": [
+        {
+          "type": "product",
+          "name": "Products",
+          "settings": [
+            {
+              "type": "product",
+              "id": "product",
+              "label": "Product"
+            }
+          ]
+        }
+      ]
+    
+
+
   }
   
 {% endschema %}

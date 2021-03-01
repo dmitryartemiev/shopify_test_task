@@ -2835,7 +2835,9 @@ hr {
   color: var(--color-body-text); }
 
 .product-form__cart-submit, .shopify-payment-button .shopify-payment-button__button--unbranded {
-  display: block;
+  /* display: flex; */
+  /* flex-direction:row !important; */
+  display:block;
   width: 100%;
   line-height: 1.4;
   padding-left: 5px;
@@ -5328,6 +5330,9 @@ hr {
 .price-item {
   color: var(--color-body-text);
   font-weight: var(--font-weight-body--bolder); }
+  .price-item-cart {
+    color: var(--color-btn-primary-text);
+    font-weight: var(--font-weight-body--bolder); }
 
 .price-item--sale {
   color: var(--color-sale-text); }
@@ -6996,3 +7001,7 @@ hr {
 
 .store-availability-list__phone {
   margin-bottom: 0; }
+
+  .in__cart{
+    color: white !important;
+  }

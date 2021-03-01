@@ -9740,3 +9740,17 @@ function removeImageLoadingAnimation(image) {
     imageWrapper.removeAttribute('data-image-loading-animation');
   }
 }
+
+// let $customs = document.getElementsByClassName('custom-selected-type');
+//   let result = document.getElementsByClassName(custom_option);
+
+// for (let custom of $customs){
+
+//    custom.addEventListener('change', (evt) => {
+ 
+//           console.log(result);
+
+
+// })        
+
+// }
